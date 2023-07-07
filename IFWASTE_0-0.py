@@ -1,16 +1,31 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import random
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+class Food:
+    def __init__(self, food_type, amount_kg):
+        self.type = food_type
+        self.amount_kg = amount_kg
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+class House:
+    def __init__(self):
+        self.members_adult = random.randint(1, 3)
+        self.members_dependent = random.randint(0, 3)
+        self.menu = []
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    def generate_menu(self):
+        for i in range(self.members_adult):
+            food_type = random.choice(foods)
+            amount_kg = round(random.uniform(1, 5), 2)
+            food = Food(food_type, amount_kg)
+            self.menu.append(food)
+
+    def print_menu(self):
+        for food in self.menu:
+            print(f"Food: {food.type}, Amount: {food.amount_kg} kg")
+
+
+# Usage example
+house = House()
+house.generate_menu()
+house.print_menu()
