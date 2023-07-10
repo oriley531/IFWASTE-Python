@@ -5,23 +5,29 @@ class Food:
     def __init__(self, foodType, amount_kg):
         self.type = foodType
         self.amount_kg = amount_kg
-        self.expirationTime = random.uniform(6,14)
 
     def __init__(self, foodType, amount_kg):
         self.type = foodType
         self.amount_kg = amount_kg
+        # Determine the kcal_per_kg and expiration_time of a food
         if self.type == "Dairy & Eggs":
             self.kcal_per_kg = 10*(random.gauss(182, 112)+random.gauss(171,74))/2 #averages the random odds between dairy and egg products
+            self.expiration_time = 7*random.gauss(2, 1)
         elif self.type == "Meat & Fish":
             self.kcal_per_kg = 10*random.gauss(224, 98)
+            self.expiration_time = random.gauss(7, 3)
         elif self.type == "Dry Foods":
             self.kcal_per_kg = 10*(random.gauss(337, 217)+random.gauss(337, 110))/2 # averages the random odds between beans and grains
+            self.expiration_time = 7*random.gauss(7, 4)
         elif self.type == "Fruits and Vegetables":
             self.kcal_per_kg = 10*(random.gauss(67,56)+random.gauss(83, 80))/2 # Averages the random odds between Fruits and Vegetables
+            self.expiration_time = random.gauss(10, 4.5) # somewhere from 1 to 2 weeks
         elif self.type == "Liquids/Oils/Grease":
             self.kcal_per_kg = 10*random.gauss(390, 226) # taking data from "Fats, oils, and salad dressings" data -> assuming close
+            self.expiration_time = 30*6 #30 days per month times 6 month
         elif self.type == "Snacks, Condiments, & Other":
             self.kcal_per_kg = 10*random.gauss(242, 190) # Assumed to be equal too "Snacks, Condiments, & Other"
+            self.expiration_time = 30*random.guass(18,6)
         elif self.type == "Cooked/Prepared Items/Leftovers":
             self.kcal_per_kg = random.gauss(1300, 200) #assumed ready to eat or frozen from the store
             self.expiration_time = 7
