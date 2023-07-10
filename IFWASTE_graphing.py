@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import csv
 
-FW_generation = {"Total": [], "Meat & Fish": [], "Dairy & Eggs": [], "Fruits and Vegetables": [], "Baked Goods": [], "Dry Foods": [], "Snacks, Condiments, & Other": [], "Cooked/Prepared Items/Leftovers": []}
+FW_generation = {"Total": [], "Meat & Fish": [], "Dairy & Eggs": [], "Fruits and Vegetables": [], "Baked Goods": [], "Dry Foods": [], "Snacks, Condiments, & Other": [], "Cooked/Prepared Items/Leftovers": [], "Liquids/Oils/Grease": []}
 
-def FW_collect():
-    week_FW = {"Total": 0, "Meat & Fish": 0, "Dairy & Eggs": 0, "Fruits and Vegetables": 0, "Baked Goods": 0, "Dry Foods": 0, "Snacks, Condiments, & Other": 0, "Cooked/Prepared Items/Leftovers": 0}
+def FW_collect(houses):
+    week_FW = {"Total": 0, "Meat & Fish": 0, "Dairy & Eggs": 0, "Fruits and Vegetables": 0, "Baked Goods": 0, "Dry Foods": 0, "Snacks, Condiments, & Other": 0, "Cooked/Prepared Items/Leftovers": 0, "Liquids/Oils/Grease":0}
     for house in houses:
         for FW in house.waste_bin:
             week_FW[FW.type] += FW.amount_kg
@@ -12,7 +12,7 @@ def FW_collect():
             house.waste_bin.remove(FW)
             del FW
     for FW in week_FW: # adds total week amount to the data list
-        FW_collect[FW].append(week_FW[FW])
+        FW_generation[FW].append(week_FW[FW])
   
 def create_multi_plot_line_graph(data_dict):
     plt.figure(figsize=(10, 6))  # Set the figure size

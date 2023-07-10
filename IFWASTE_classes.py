@@ -1,10 +1,6 @@
 import random
 
-
 class Food:
-    def __init__(self, foodType, amount_kg):
-        self.type = foodType
-        self.amount_kg = amount_kg
 
     def __init__(self, foodType, amount_kg):
         self.type = foodType
@@ -22,12 +18,15 @@ class Food:
         elif self.type == "Fruits and Vegetables":
             self.kcal_per_kg = 10*(random.gauss(67,56)+random.gauss(83, 80))/2 # Averages the random odds between Fruits and Vegetables
             self.expiration_time = random.gauss(10, 4.5) # somewhere from 1 to 2 weeks
+        elif self.type == "Baked Goods":
+            self.kcal_per_kg = 10*random.gauss(300, 100)
+            self.expiration_time = random.gauss(7, 4)
         elif self.type == "Liquids/Oils/Grease":
             self.kcal_per_kg = 10*random.gauss(390, 226) # taking data from "Fats, oils, and salad dressings" data -> assuming close
             self.expiration_time = 30*6 #30 days per month times 6 month
         elif self.type == "Snacks, Condiments, & Other":
             self.kcal_per_kg = 10*random.gauss(242, 190) # Assumed to be equal too "Snacks, Condiments, & Other"
-            self.expiration_time = 30*random.guass(18,6)
+            self.expiration_time = 30*random.gauss(18,6)
         elif self.type == "Cooked/Prepared Items/Leftovers":
             self.kcal_per_kg = random.gauss(1300, 200) #assumed ready to eat or frozen from the store
             self.expiration_time = 7
@@ -81,8 +80,10 @@ class House:
     
     def eat(self) :
         random.shuffle(self.menu)
-        meal = self.kcal /3
+        meal = self.kcal 
         for food in self.menu:
+            if food.expiration_time >= 0 :
+                self.waste(food)
             if meal > 0:
                 if food.kcal_per_kg*food.amount_kg > meal:
                     food.amount_kg -= meal/food.kcal_per_kg
