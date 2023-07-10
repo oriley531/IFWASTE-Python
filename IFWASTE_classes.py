@@ -35,7 +35,7 @@ class Food:
             raise ValueError("Not a listed Food Class")
 
     def decay(self):
-        self.expiration_time -= 1
+        self.expiration_time -= 1 # decays one day at a time
 
     def __str__(self): 
         return(f"Food: {self.type}, Amount: {self.amount_kg} kg")
@@ -73,12 +73,26 @@ class House:
             "Cooked/Prepared Items/Leftovers", 
         ]
         # Randomly add some items to their menu
-        for i in range(self.members_adult):
+        for i in range(self.members_adult + self.members_dependent):
             food_type = random.choice(FLW_categories)
             amount_kg = round(random.uniform(1, 5), 2)
             food = Food(food_type, amount_kg)
             self.menu.append(food)
     
+    def eat(self) :
+        random.shuffle(self.menu)
+        meal = self.kcal /3
+        for food in self.menu:
+            if meal > 0:
+                if food.kcal_per_kg*food.amount_kg > meal:
+                    food.amount_kg -= meal/food.kcal_per_kg
+                else:
+                    meal -= food.kcal_per_kg*food.amount_kg
+                    self.menu.remove(food)
+                    del food
+            else:
+                break
+
     def waste(self, food):
         waste_item = Waste(food)
         self.waste_bin.append(waste_item)
