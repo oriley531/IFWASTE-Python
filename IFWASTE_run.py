@@ -5,7 +5,7 @@ import IFWASTE_output as output
 def setup():
     # Initialize and define the global variables that will be used throughout the run.
     global FW_generation # Tracks the weekly generation rates of FW of all households combined.
-    FW_generation = {"Total": [], "Meat & Fish": [], "Dairy & Eggs": [], "Fruits and Vegetables": [], "Baked Goods": [], "Dry Foods": [], "Snacks, Condiments, & Other": [], "Cooked/Prepared Items/Leftovers": [], "Liquids/Oils/Grease": []}
+    FW_generation = {"Total": [], "Dairy & Eggs": [], "Meat & Fish": [], "Fruits and Vegetables": [], "Dry Foods & Baked Goods": [], "Snacks, Condiments, Liquids, Oils, Grease, and Other": [], "Cooked/Prepared Items/Leftovers": []}
     global days # the number of days you would like to run for
     days = 100 
     global houses # a list that contains all of the houses simulated
