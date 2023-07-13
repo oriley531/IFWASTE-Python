@@ -1,38 +1,38 @@
-from IFWASTE_classes import House, Food, Waste
+from IFWASTE_classes import House, Food, Waste, Store
 import IFWASTE_output as output
 
 #Initial Parameters
 def setup():
-    # Initialize and define the global variables that will be used throughout the run.
-    global FW_generation # Tracks the weekly generation rates of FW of all households combined.
-    FW_generation = {"Total": [], "Dairy & Eggs": [], "Meat & Fish": [], "Fruits and Vegetables": [], "Dry Foods & Baked Goods": [], "Snacks, Condiments, Liquids, Oils, Grease, and Other": [], "Cooked/Prepared Items/Leftovers": []}
-    global days # the number of days you would like to run for
+    global days 
     days = 100 
-    global houses # a list that contains all of the houses simulated
-    houses = []
-    num_of_houses = 2 # the amount of houses simulated
-    # Create all of the houses and add them to the list
-    for i in range(num_of_houses) :
-        house = House()
+    store = Store()
+    global houses 
+    houses = [] # stores houses
+    num_of_houses = 2
+    for i in range(num_of_houses):
+        house = House(id = i, store= store)
+        houses.append(house) # make all houses
         house.shop()
-        houses.append(house)
-    # Output Options 
-    # Make True to recieve them
+
+    # globals for outputs
+    global FW_generation # Tracks the weekly generation rates of FW of all households combined.
+    FW_generation = {"Total": [], "Dairy & Eggs": [], "Meat & Fish": [], "Fruits & Vegetables": [], "Dry Foods & Baked Goods": [], "Snacks, Condiments, Liquids, Oils, Grease, & Other": [], 'Cooked, Prepared Items, & Leftovers': []}
+
     global csv 
-    csv = False
+    csv = True
     global line_graph
     line_graph = True
+
     
 
 def run():
-    for day in range(days): # runs the test period
+    for day in range(days):
         for house in houses:
             if day % house.shopping_frequency == 0:
-                house.shop() # shopping every x days
-            for i in range(3) :
-                house.eat() # eat 3 meals a day
+                house.shop()
+            house.eat()
             for food in house.menu:
-                food.decay() # food decays
+                food.decay()
         if day % 7 == 0 : # every 7 days
             FW_collect(houses, FW_generation) # collects and records the trash
 
@@ -41,7 +41,7 @@ def create_outputs():
     if line_graph == True:
         output.create_multi_plot_line_graph(FW_generation)
     if csv == True:
-        output.write_dict_to_csv(FW_generation, 'outputdata')
+        output.write_dict_to_csv(FW_generation, 'FW_data')
 
 def FW_collect(houses_to_collect: list, collect_to: dict):
     # Simulates the practice of a garbage truck coming to pick up all of the trash    

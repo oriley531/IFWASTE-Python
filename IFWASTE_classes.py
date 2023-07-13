@@ -1,104 +1,117 @@
 import random
-
 class Food:
-
-    def __init__(self, foodType, amount_kg):
-        self.type = foodType
-        self.amount_kg = amount_kg
+    def __init__(self, food_type, servings):
+        self.type = food_type
+        self.servings = servings
+        self.frozen = False 
         # Determine the kcal_per_kg and expiration_time of a food
-        if self.type == "Dairy & Eggs":
-            self.kcal_per_kg = random.gauss(1814, 1098)
-            self.expiration_time = 7*random.uniform(1, 4)
-        elif self.type == "Meat & Fish":
-            self.kcal_per_kg = random.gauss(2240, 980)
+        if self.type == "Meat & Fish":
+            self.kcal_per_g = random.gauss(2.24, 0.98)
+            self.price_per_g = random.gauss(0.008, 0.0044)
             self.expiration_time = random.uniform(3, 11)
+            self.g_per_serving = random.gauss(89, 51)
+        elif self.type == "Dairy & Eggs":
+            self.kcal_per_g = random.gauss(1.81, 1.1)
+            self.price_per_g = random.gauss(0.00395, 0.0030)
+            self.expiration_time = 7*random.uniform(1, 4)
+            self.g_per_serving = random.gauss(109, 86)
+        elif self.type == "Fruits & Vegetables":
+            self.kcal_per_g = random.gauss(0.79, 0.73)
+            self.price_per_g = random.gauss(0.00317, 0.0025)
+            self.expiration_time = random.uniform(5.5, 14.5)
+            self.g_per_serving = random.gauss(116, 63)
         elif self.type == "Dry Foods & Baked Goods":
-            self.kcal_per_kg = random.gauss(3361,1233) 
+            self.kcal_per_g = random.gauss(3.36, 1.23)
+            self.price_per_g = random.gauss(0.00474, 0.0032)
             self.expiration_time = 7*random.uniform(1, 8)
-        elif self.type == "Fruits and Vegetables":
-            self.kcal_per_kg = random.gauss(787.5, 736)
-            self.expiration_time = random.uniform(5.5, 14.5) 
-        elif self.type == "Snacks, Condiments, Liquids, Oils, Grease, and Other":
-            self.kcal_per_kg = random.gauss(2793, 1990) 
+            self.g_per_serving = random.gauss(65, 54)
+        elif self.type == "Snacks, Condiments, Liquids, Oils, Grease, & Other":
+            self.kcal_per_g = random.gauss(2.79, 1.99)
+            self.price_per_g = random.gauss(0.00392, 0.0035)
             self.expiration_time = 30*random.uniform(3,18)
-        elif self.type == "Cooked/Prepared Items/Leftovers":
-            self.kcal_per_kg = random.gauss(1300, 200) #assumed ready to eat or frozen from the store
+            self.g_per_serving = random.gauss(95, 79)
+        elif self.type == 'Cooked, Prepared Items, & Leftovers':
+            self.kcal_per_g = random.gauss(1.3, 2)
+            self.price_per_g = random.gauss(0.005, 0.0035)
             self.expiration_time = random.uniform(4,11)
+            self.g_per_serving = random.gauss(283, 75)
         else :
             raise ValueError("Not a listed Food Class")
 
     def decay(self):
-        self.expiration_time -= 1 # decays one day at a time
-
-    def __str__(self): 
-        return(f"Food: {self.type}, Amount: {self.amount_kg} kg")
+        if self.frozen == False :
+            self.expiration_time -= 1 # decays one day at a time
 
 
 class Waste:
-    def __init__(self, food: Food):
-        self.type = food.type # stores the FW category
-        self.amount_kg = food.amount_kg # amount in kilograms
+    def __init__(self, food: Food, day):
+        self.type = food.type 
+        self.amount_kg = food.g_per_serving*food.servings/1000 #g/kg
+        self.day_wasted = day 
 
-    def __str__(self):
-        return f"Waste category: {self.type}, Amount: {self.amount_kg}"
-
+class Store:
+    def __init__(self):
+        self.shelves = []
+        self.stock_shelves()
+    
+    def stock_shelves(self):
+        food_types = [
+        "Meat & Fish", 
+        "Dairy & Eggs", 
+        "Fruits & Vegetables", 
+        "Dry Foods & Baked Goods", 
+        "Snacks, Condiments, Liquids, Oils, Grease, & Other", 
+        'Cooked, Prepared Items, & Leftovers' 
+        ]
+        # Can expand this to include different levels of freshness at the store to look at style of shopping on home fw like those who try to get the freshest produce
+        for food_type in food_types: # add food to the store
+            self.shelves.append(Food(food_type, servings=3)) # small package
+            self.shelves.append(Food(food_type, servings=6)) # medium package
+            self.shelves.append(Food(food_type, servings=10)) # big package
 
 class House:
-    def __init__(self):
+    def __init__(self, id, store: Store):
+        self.id = id
+        self.store = store
         self.members_adult = random.randint(1, 3) # income earning/providing members
         self.members_dependent = random.randint(0, 3) # Children and elderly
-        # kcal per meal based on members
-        self.kcal = (self.members_adult*random.gauss(2144, 1308) + self.members_dependent*random.gauss(1800,1434))/3
+        # going based on servings and portions
+        self.portion_size = 1 #assume all members eat a 1 serving portion each meal
+        self.servings = self.portion_size*(self.members_adult+self.members_dependent)
         self.menu = [] # stores all of a households foods
         self.waste_bin = [] # the house trashcan
-        self.shopping_frequency = random.randint(1,7) # how many days between shoppig trips
-
-    def __str__(self):
-        return(f"Adults: {self.members_adult}, Dependents: {self.members_dependent}, kilocalories per day: {self.kcal}")
+        self.shopping_frequency = random.randint(1,7) #days between shopping trips
+        self.shopping_quantity = 3*self.shopping_frequency # meals*days
+        self.shopping_quantity *= self.members_adult+self.members_dependent # for all house members
+        self.shopping_quantity += random.randint(0,3) # might often over shop
 
     def shop(self):
-        FLW_categories = [
-            "Meat & Fish",
-            "Dairy & Eggs",
-            "Fruits and Vegetables",
-            "Baked Goods",
-            "Dry Foods",
-            "Snacks, Condiments, & Other",
-            "Liquids/Oils/Grease", 
-            "Cooked/Prepared Items/Leftovers", 
-        ]
         # Randomly add some items to their menu
-        for i in range(self.members_adult + self.members_dependent):
-            food_type = random.choice(FLW_categories)
-            amount_kg = round(random.uniform(1, 5), 2)
-            food = Food(food_type, amount_kg)
-            self.menu.append(food)
+        basket = 0
+        while basket < self.shopping_quantity:
+            item = random.choice(self.store.shelves)
+            self.menu.append(Food(item.type, item.servings))
+            basket += item.servings
     
     def eat(self) :
         random.shuffle(self.menu)
-        meal = self.kcal 
+        servings_left = self.servings 
+
         for food in self.menu:
+            # throws away bad food
             if food.expiration_time >= 0 :
                 self.waste(food)
-            if meal > 0:
-                if food.kcal_per_kg*food.amount_kg > meal:
-                    food.amount_kg -= meal/food.kcal_per_kg
+            elif servings_left > 0:
+                if food.servings > servings_left:
+                    food.servings -= servings_left
                 else:
-                    meal -= food.kcal_per_kg*food.amount_kg
+                    servings_left -= food.servings
                     self.menu.remove(food)
                     del food
             else:
                 break
 
-    def waste(self, food):
-        waste_item = Waste(food)
-        self.waste_bin.append(waste_item)
+    def waste(self, food: Food):
+        self.waste_bin.append(Waste(food, day=None))
+        self.menu.remove(food)
         del food
-
-    def print_menu(self):
-        for food in self.menu:
-            print(food)
-
-    def print__bin(self):
-        for waste in self.waste_bin:
-            print(waste)
