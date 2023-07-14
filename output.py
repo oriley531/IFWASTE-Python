@@ -1,32 +1,28 @@
-import matplotlib.pyplot as plt
-import csv
+import run as r
+import numpy as np 
+import pandas as pd
 
-def create_outputs(FW_generation: dict, line_graph=True, csv=False):
+def FW_collect(shopping_data=False, waste_data=True):
+    if waste_data == True:
+        global FW
+        FW = pd.DataFrame(columns=['House id', 'Day Wasted', 'kg', 'Type'])
+        #collect the data for data analysis and interpretation
+        for house in r.houses:
+            for item in house.waste_bin:
+                new_W = {
+                    'House id': house.id, 
+                    'Day Wasted': item.day_wasted, 
+                    'kg': item.amount_kg, 
+                    'Type': item.type
+                }
+                FW.loc[len(FW)] = new_W
+    if shopping_data == False:
+        print('Collecting Shopping Data is not yet implemented')
+
+def create_outputs(line_graph=False, csv=True, excel=False):
     if line_graph == True:
-        create_multi_plot_line_graph(FW_generation)
+        create_linegraph()
     if csv == True:
-        write_dict_to_csv(FW_generation, 'FW_data')
-  
-def create_multi_plot_line_graph(data_dict):
-    plt.figure(figsize=(10, 6))  # Set the figure size
-
-    # Iterate over each key-value pair in the dictionary
-    for key, values in data_dict.items():
-        x = list(range(1, len(values) + 1))  # Generate x-axis values
-        plt.plot(x, values, label=key)  # Plot the values with a label
-
-    plt.xlabel('Weeks')  # Set the label for the x-axis
-    plt.ylabel('kg of FW')  # Set the label for the y-axis
-    plt.title('Food Waste')  # Set the title for the graph
-    plt.legend()  # Show the legend
-    plt.grid(True)  # Show the grid
-    plt.show()  # Display the graph
-
-def write_dict_to_csv(data_dict, filename):
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Key', 'Values'])  # Write header row
-
-        # Iterate over each key-value pair in the dictionary
-        for key, values in data_dict.items():
-            writer.writerow([key] + values)
+        FW.to_csv('FW_data.csv')
+    if excel == True:
+        FW.to_excel('FW_data.xlsx')

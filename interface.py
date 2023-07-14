@@ -17,10 +17,18 @@ Defaults:
 r.run()
 
 ''' 
-Create the desired outputs
+Collect the data you want
 Defaults:
-    line_graph = True 
-    csv = False
+    shopping_data=False 
+    waste_data=True
+'''
+op.FW_collect()
 
 '''
-op.create_outputs(FW_generation= r.FW_generation)
+Output the data
+Defaults: 
+    line_graph=False 
+    csv=True 
+    excel=False
+'''
+op.create_outputs()

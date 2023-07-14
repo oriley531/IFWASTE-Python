@@ -73,6 +73,7 @@ class House:
     def __init__(self, id, store: Store):
         self.id = id
         self.store = store
+        self.day = 0
         self.members_adult = random.randint(1, 3) # income earning/providing members
         self.members_dependent = random.randint(0, 3) # Children and elderly
         # going based on servings and portions
@@ -112,6 +113,6 @@ class House:
                 break
 
     def waste(self, food: Food):
-        self.waste_bin.append(Waste(food, day=None))
+        self.waste_bin.append(Waste(food=food, day=self.day))
         self.menu.remove(food)
         del food
