@@ -1,5 +1,11 @@
 import matplotlib.pyplot as plt
 import csv
+
+def create_outputs(FW_generation: dict, line_graph=True, csv=False):
+    if line_graph == True:
+        create_multi_plot_line_graph(FW_generation)
+    if csv == True:
+        write_dict_to_csv(FW_generation, 'FW_data')
   
 def create_multi_plot_line_graph(data_dict):
     plt.figure(figsize=(10, 6))  # Set the figure size
