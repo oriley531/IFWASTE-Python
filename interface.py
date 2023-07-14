@@ -1,5 +1,4 @@
 import run as r 
-from classes import House, Food, Waste, Store
 import output as op 
 
 '''
@@ -7,22 +6,14 @@ Initilization
 Defaults:
     num_of_houses= 100:<int>
 '''
-r.init()
+r.init(num_of_houses=2)
 
 '''
 The function to run the simulation
 Defaults:
     days = 365:<int>
 '''
-r.run()
-
-''' 
-Collect the data you want
-Defaults:
-    shopping_data=False 
-    waste_data=True
-'''
-op.FW_collect()
+r.run(days=54)
 
 '''
 Output the data

@@ -44,10 +44,9 @@ class Food:
 
 
 class Waste:
-    def __init__(self, food: Food, day):
+    def __init__(self, food: Food):
         self.type = food.type 
-        self.amount_kg = food.g_per_serving*food.servings/1000 #g/kg
-        self.day_wasted = day 
+        self.amount_kg = food.g_per_serving*food.servings/1000 #g/kg 
 
 class Store:
     def __init__(self):
@@ -73,7 +72,6 @@ class House:
     def __init__(self, id, store: Store):
         self.id = id
         self.store = store
-        self.day = 0
         self.members_adult = random.randint(1, 3) # income earning/providing members
         self.members_dependent = random.randint(0, 3) # Children and elderly
         # going based on servings and portions
@@ -113,6 +111,6 @@ class House:
                 break
 
     def waste(self, food: Food):
-        self.waste_bin.append(Waste(food=food, day=self.day))
+        self.waste_bin.append(Waste(food=food))
         self.menu.remove(food)
         del food
