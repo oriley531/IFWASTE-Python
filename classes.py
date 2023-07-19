@@ -175,6 +175,8 @@ class House:
             kcal += food.servings*food.g_per_serving*food.kcal_per_g
             self.kitchen.remove(food)
             del food
+        for key, value in composition:
+            composition[key] = value/kg
         kcal_per_kg = kcal/kg
         meal = CookedFood()
         self.fridge.append(meal)    
