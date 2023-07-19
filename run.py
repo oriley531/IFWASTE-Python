@@ -16,6 +16,7 @@ def run(days=365):
         for house in houses:
             if day % house.shopping_frequency == 0:
                 house.shop()
+                house.check_pantry()
             house.eat()
             FW_collect(day=day, house= house)
             for food in house.menu:
