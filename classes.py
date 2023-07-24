@@ -15,16 +15,7 @@ class Store():
             'Inedible Parts'
             ])
         self.stock_shelves()
-        self.inventory = pd.DataFrame(columns= [
-            'Type', 
-            'Servings', 
-            'Expiration Min.', 
-            'Expiration Max.',
-            'Price',
-            'kg',
-            'kcal_kg',
-            'Inedible Parts'
-        ])
+        self.inventory = []
     
     def stock_shelves(self):
         food_types = [
@@ -36,9 +27,9 @@ class Store():
             'Store-Prepared Items' 
             ]
         for food_type in food_types:
-            self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=3), ignore_index=True)
             self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=6), ignore_index=True)
-            self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=10), ignore_index=True)
+            self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=12), ignore_index=True)
+            self.shelves = self.shelves._append(self.food_data(food_type=food_type, servings=20), ignore_index=True)
 
     def food_data(self, food_type: str, servings:int):
         ''' RGO - 
@@ -99,11 +90,10 @@ class Store():
 
     def buy(self,item_index:int):
         item_info = self.shelves.iloc[item_index].to_dict()
-        self.inventory._append(item_info)
         return item_info
 
 class Food():
-    def __init__(self, food_data:dict ):
+    def __init__(self, food_data:dict):
         self.type = food_data['Type']
         self.kg = food_data['kg']
         self.servings = food_data['Servings']
@@ -113,7 +103,6 @@ class Food():
         self.frozen = False
         self.serving_size = self.kg/self.servings
         self.kcal_kg = food_data['kcal_kg']
-
     def decay(self):
         if self.frozen == False:
             self.expiration_time -= 1
@@ -125,6 +114,7 @@ class CookedFood(Food):
         self.kg = kg
         self.kcal_kg = kcal_per_kg
         self.expiration_time = random.uniform(4, 11)
+        self.frozen = False
 
 class House():
     ''' could make a house function for deciding the
@@ -135,11 +125,11 @@ class House():
         self.adults = random.randint(1,3)
         self.dependents = random.randint(0,2)
         self.kcal_day = self.adults*random.gauss(2144, 1308) + self.dependents*random.gauss(1800,1434)
-        self.pantry = []
-        self.fridge = []
-        self.kitchen = []
-        self.waste_bin = []
-        self.food_eaten = pd.DataFrame(columns=[])
+        self.pantry = [] # food pre prep/cook
+        self.fridge = [] # food post cook
+        self.kitchen = [] # food post prep
+        self.waste_bin = [] # food wasted
+        self.stomach = [] #food eaten
         self.shopping_frequency = random.randint(1,7) #days between shopping trips
         self.time_available_for_meal_prep = [2, 0.5, 0.5, 0.5, 0.5, 1, 2] # time available for cooking each day of the week, not yet utilized
     
@@ -148,10 +138,12 @@ class House():
         # set seed with random_state= int
         basket = self.store.shelves.sample(n=2*self.shopping_frequency)
         for i in range(len(basket)):
+            food = Food(self.store.buy(item_index=i))
             if basket.iloc[i, basket.columns.get_loc('Type')] == 'Store-Prepared Items':
-                self.fridge.append(Food(self.store.buy(item_index=i)))
+                self.fridge.append(food)
             else:
-                self.pantry.append(Food(self.store.buy(item_index=i)))
+                self.pantry.append(food)
+            self.store.inventory.append(copy.deepcopy(food))
         
     def prep(self, food: Food, servings: int):
         if food.expiration_time <= 0:
@@ -179,8 +171,8 @@ class House():
                 'kg': waste_kg,
                 'House': self.id
             }
+            self.waste(waste_data= waste_data)
         self.kitchen.append(prepped) # add the prepped food to be cooked or eaten from the kitchen
-        self.waste(waste_data= waste_data)
 
     def waste(self, waste_data: dict):
         self.waste_bin.append(Waste(waste_data=waste_data))
@@ -195,6 +187,8 @@ class House():
             'Snacks, Condiments, Liquids, Oils, Grease, & Other':0
         }
         kcal = 0
+        if len(self.pantry) < 4:
+            self.shop
         for i in range(random.randint(2,5)):
             self.prep(random.choice(self.pantry), random.randint(1, 4))
         for food in self.kitchen:
@@ -203,22 +197,29 @@ class House():
             kcal += food.kcal_kg * food.kg
             self.kitchen.remove(food)
             del food
-        kcal_kg = kcal / kg
-        for key, value in composition:
+        if kg == 0: # only occurs if all the food they grabbed to cook is bad
+            self.eat()
+            return
+        for key, value in composition.items():
             composition[key] /= kg
-        self.fridge.append(CookedFood(composition= composition, kg= kg, kcal_per_kg= kcal_kg))
+        self.fridge.append(CookedFood(composition= composition, kg= kg, kcal_per_kg= kcal/kg))
 
     def eat(self):
+        ''' currently just picks the most recent item from the 
+        fridge'''
         kcal_today = self.kcal_day
         for food in reversed(self.fridge):
             if kcal_today >= food.kcal_kg*food.kg:
                 kcal_today -= food.kcal_kg*food.kg 
+                self.fridge.remove(food)
+                self.stomach.append(food)
             else:
-                food.kg -= kcal_today
+                eaten_food = copy.deepcopy(food)
+                food.kg -= kcal_today/food.kcal_kg
+                eaten_food.kg = kcal_today/eaten_food.kcal_kg
                 kcal_today = 0
             if kcal_today == 0:
-                return                
-
+                return 
 class Waste():
     def __init__(self, waste_data:dict):
         self.kg = waste_data['kg']
