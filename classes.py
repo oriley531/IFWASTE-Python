@@ -88,10 +88,6 @@ class Store():
             }
         return new_food
 
-    def buy(self,item_index:int):
-        item_info = self.shelves.iloc[item_index].to_dict()
-        return item_info
-
 class Food():
     def __init__(self, food_data:dict):
         self.type = food_data['Type']
@@ -138,13 +134,14 @@ class House():
         # set seed with random_state= int
         basket = self.store.shelves.sample(n=2*self.shopping_frequency)
         for i in range(len(basket)):
-            food = Food(self.store.buy(item_index=i))
-            if basket.iloc[i, basket.columns.get_loc('Type')] == 'Store-Prepared Items':
+            item_info = basket.iloc[i].to_dict()
+            food = Food(item_info)
+            self.store.inventory.append(copy.deepcopy(food))
+            if food.type == 'Store-Prepared Items':
                 self.fridge.append(food)
             else:
                 self.pantry.append(food)
-            self.store.inventory.append(copy.deepcopy(food))
-        
+    
     def prep(self, food: Food, servings: int):
         if food.expiration_time <= 0:
             self.waste({

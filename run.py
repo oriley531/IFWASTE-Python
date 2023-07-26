@@ -81,7 +81,7 @@ def collect_data(day:int, house:House):
         #'kcal', - to be implemented ln 
         #'price', - to be implemented
         'House': house.id,
-        'Day eaten': day
+        'Day Wasted': day
         }
         house.waste_bin.remove(waste)
         del waste
