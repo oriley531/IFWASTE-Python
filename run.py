@@ -102,4 +102,4 @@ def collect_data(day:int, house:House):
 def data_to_csv(trial=1):
     bought_food.to_csv(f'bought_food_{trial}.csv')
     eaten_food.to_csv(f'eaten_food_{trial}.csv')
-    wasted_food.to_csv(f'wasted_food{trial}.csv')
+    wasted_food.to_csv(f'wasted_food_{trial}.csv')

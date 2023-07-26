@@ -128,6 +128,7 @@ class House():
         self.stomach = [] #food eaten
         self.shopping_frequency = random.randint(1,7) #days between shopping trips
         self.time_available_for_meal_prep = [2, 0.5, 0.5, 0.5, 0.5, 1, 2] # time available for cooking each day of the week, not yet utilized
+        self.budget = 20 #dollars, not used
     
     def shop(self):
         # randomly selects frequency*2 items from the store
@@ -172,6 +173,9 @@ class House():
         self.kitchen.append(prepped) # add the prepped food to be cooked or eaten from the kitchen
 
     def waste(self, waste_data: dict):
+        '''RGO - make so that if it is cooked it breaks up waste
+        into all of it's parts with a column to denote whether 
+        it was on it's own when wasted or cooked'''
         self.waste_bin.append(Waste(waste_data=waste_data))
 
     def cook(self):
@@ -203,20 +207,52 @@ class House():
 
     def eat(self):
         ''' currently just picks the most recent item from the 
-        fridge'''
+        fridge, assumes they stop eating once the daily kcal need is met,
+        assume that store prepped food gets eaten first'''
         kcal_today = self.kcal_day
         for food in reversed(self.fridge):
-            if kcal_today >= food.kcal_kg*food.kg:
-                kcal_today -= food.kcal_kg*food.kg 
-                self.fridge.remove(food)
-                self.stomach.append(food)
+            if food.expiration_time > 0:
+                if food.type == 'Store-Prepared Items':
+                    if kcal_today >= food.kcal_kg*food.kg:
+                        kcal_today -= food.kcal_kg*food.kg 
+                        self.fridge.remove(food)
+                        self.stomach.append(food)
+                    else:
+                        eaten_food = copy.deepcopy(food)
+                        food.kg -= kcal_today/food.kcal_kg
+                        eaten_food.kg = kcal_today/eaten_food.kcal_kg
+                        kcal_today = 0
+                    if kcal_today == 0:
+                        return 
             else:
-                eaten_food = copy.deepcopy(food)
-                food.kg -= kcal_today/food.kcal_kg
-                eaten_food.kg = kcal_today/eaten_food.kcal_kg
-                kcal_today = 0
-            if kcal_today == 0:
-                return 
+                self.waste({
+                    'kg': food.kg,
+                    'Type': food.type,
+                    'House': self.id
+                })
+                self.fridge.remove(food)
+                del food
+        for food in reversed(self.fridge):
+            if food.expiration_time > 0:
+                if kcal_today >= food.kcal_kg*food.kg:
+                    kcal_today -= food.kcal_kg*food.kg 
+                    self.fridge.remove(food)
+                    self.stomach.append(food)
+                else:
+                    eaten_food = copy.deepcopy(food)
+                    food.kg -= kcal_today/food.kcal_kg
+                    eaten_food.kg = kcal_today/eaten_food.kcal_kg
+                    kcal_today = 0
+                if kcal_today == 0:
+                    return 
+            else:
+                self.waste({
+                    'kg': food.kg,
+                    'Type': food.type,
+                    'House': self.id
+                })
+                self.fridge.remove(food)
+                del food
 class Waste():
     def __init__(self, waste_data:dict):
         self.kg = waste_data['kg']
